@@ -4,6 +4,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+
 class DBHelper{
 
   static String dbName= 'notes.db';
@@ -42,6 +43,15 @@ class DBHelper{
   static Future<int> deleteFromDb(int id)async{
     final db = await getDb();
     return db.delete(tableName, where: 'id=?', whereArgs: [id]);
+  }
+
+  static Future  updateNote(int id, String des,date, priority)async{
+    final db =await getDb();
+    return db.update(tableName, {
+      'descriptionText' : des,
+      'date' : date,
+      'priority' : priority
+    }, where: 'id=?', whereArgs: [id]);
   }
 
 }

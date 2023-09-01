@@ -1,45 +1,79 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:todo/db_helper/dbhelper.dart';
 import 'package:todo/provider/db_provider.dart';
 
-enum Priority {
-  low,
-  medium,
-  high,
-}
+import '../enums.dart';
 
-class AddNewNote extends StatefulWidget {
-  const AddNewNote({super.key});
+
+class EditExistingNote extends StatefulWidget {
+  const EditExistingNote({
+    super.key,
+    required this.id,
+    required this.dateTime,
+    required this.priority,
+    required this.description,
+  });
+
+  final int id;
+  final String description;
+  final String dateTime;
+  final String priority;
 
   @override
-  State<AddNewNote> createState() => _AddNewNoteState();
+  State<EditExistingNote> createState() => _EditExistingNoteState();
 }
 
-class _AddNewNoteState extends State<AddNewNote> {
+class _EditExistingNoteState extends State<EditExistingNote> {
   final _desController = TextEditingController();
 
   final _dateController = TextEditingController();
 
   Priority _selectedPriority = Priority.low;
 
-  // dispose controller in dispose
-  Future<void> insertNote() async {
-    final context = this.context;
-    final id = await DBHelper.insertNoteToDb(
-      _desController.text.toString(),
-      _dateController.text.toString(),
-      _selectedPriority.toString(),
-    );
-    Timer(const Duration(seconds: 0),() {
-      Provider.of<DatabaseProvider>(context, listen: false).mapDatabaseData();
-    },);
-
-    print('id of the inserted row :: $id');
+  @override
+  initState(){
+    _desController.text = widget.description;
+    _dateController.text = widget.dateTime;
+    // print("runtime type :: ${widget.priority.runtimeType}");
+    if(widget.priority == 'Priority.low')
+      {
+    _selectedPriority = Priority.low;
+      }
+    else  if(widget.priority == 'Priority.medium')
+    {
+      _selectedPriority = Priority.medium;
+    }
+    else  if(widget.priority == 'Priority.high')
+    {
+      _selectedPriority = Priority.high;
+    }
+    else
+      {
+        _selectedPriority = Priority.low;
+      }
+    super.initState();
   }
+
+
+
+  // dispose controller in dispose
+  // Future<void> insertNote() async {
+  //   final id = await DBHelper.insertNoteToDb(
+  //     _desController.text.toString(),
+  //     _dateController.text.toString(),
+  //     _selectedPriority,
+  //   );
+  //   Timer(
+  //     const Duration(seconds: 0),
+  //     () {
+  //       Provider.of<DatabaseProvider>(context, listen: false).mapDatabaseData();
+  //     },
+  //   );
+
+  //   print('id of the inserted row :: $id');
+  // }
 
   String priorityString(Priority value) {
     if (value == Priority.low) {
@@ -75,6 +109,7 @@ class _AddNewNoteState extends State<AddNewNote> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<DatabaseProvider>(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(),
@@ -82,7 +117,7 @@ class _AddNewNoteState extends State<AddNewNote> {
           child: Column(
             children: [
               const Center(
-                child: Text('Add Note'),
+                child: Text('Edit Note'),
               ),
               TextField(
                 maxLines: null,
@@ -102,7 +137,7 @@ class _AddNewNoteState extends State<AddNewNote> {
               GestureDetector(
                 onTap: () => _showDatePicker(context),
                 child: AbsorbPointer // avoid user not to type into field
-                  (
+                    (
                   child: TextField(
                     readOnly: true,
                     controller: _dateController,
@@ -141,10 +176,14 @@ class _AddNewNoteState extends State<AddNewNote> {
                         _dateController.text.isEmpty) {
                       return;
                     }
-                    insertNote();
+                    provider.editNote(widget.id,
+                        _desController.text,
+                        _dateController.text,
+                        _selectedPriority.toString(),
+                    );
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Add'))
+                  child: const Text('Edit'))
             ],
           ),
         ),

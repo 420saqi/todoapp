@@ -6,11 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:todo/db_helper/dbhelper.dart';
 import 'package:todo/provider/db_provider.dart';
 
-enum Priority {
-  low,
-  medium,
-  high,
-}
+import '../enums.dart';
+
+
 
 class AddNewNote extends StatefulWidget {
   const AddNewNote({super.key});
