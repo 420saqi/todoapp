@@ -112,79 +112,91 @@ class _EditExistingNoteState extends State<EditExistingNote> {
     final provider = Provider.of<DatabaseProvider>(context);
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(),
+        backgroundColor: Colors.cyan,
+        appBar: AppBar(
+          backgroundColor: Colors.cyan,
+        ),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Center(
-                child: Text('Edit Note'),
-              ),
-              TextField(
-                maxLines: null,
-                textInputAction: TextInputAction.newline,
-                controller: _desController,
-                decoration: const InputDecoration(
-                    labelText: 'Enter notes description',
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                      ),
-                    )),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              GestureDetector(
-                onTap: () => _showDatePicker(context),
-                child: AbsorbPointer // avoid user not to type into field
-                    (
-                  child: TextField(
-                    readOnly: true,
-                    controller: _dateController,
-                    decoration: const InputDecoration(
-                        labelText: 'Click to choose Date',
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                          ),
-                        )),
+          padding: const EdgeInsets.only(top: 100,left: 10,right: 10),
+          child: Card(
+            elevation: 10,
+            child: Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const SizedBox(height: 20,),
+                  const Center(
+                    child: Text('Edit Note',style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                    ),),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              DropdownButtonFormField<Priority>(
-                value: _selectedPriority, // default value
-                items: Priority.values.map((itemValue) {
-                  return DropdownMenuItem<Priority>(
-                    value: itemValue,
-                    child: Text(priorityString(itemValue)),
-                  );
-                }).toList(),
+                  const SizedBox(height: 15,),
+                  TextField(
+                    maxLines: null,
+                    textInputAction: TextInputAction.newline,
+                    controller: _desController,
+                    decoration: const InputDecoration(
+                        labelText: 'Enter notes description',
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  GestureDetector(
+                    onTap: () => _showDatePicker(context),
+                    child: AbsorbPointer // avoid user not to type into field
+                        (
+                      child: TextField(
+                        readOnly: true,
+                        controller: _dateController,
+                        decoration: const InputDecoration(
+                            labelText: 'Click to choose Date',
+                            ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButtonFormField<Priority>(
+                    value: _selectedPriority, // default value
+                    items: Priority.values.map((itemValue) {
+                      return DropdownMenuItem<Priority>(
+                        value: itemValue,
+                        child: Text(priorityString(itemValue)),
+                      );
+                    }).toList(),
 
-                onChanged: (newValue) {
-                  _selectedPriority = newValue!;
-                },
+                    onChanged: (newValue) {
+                      _selectedPriority = newValue!;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                      onPressed: () async {
+                        if (_desController.text.isEmpty ||
+                            _dateController.text.isEmpty) {
+                          return;
+                        }
+                        provider.editNote(widget.id,
+                            _desController.text,
+                            _dateController.text,
+                            _selectedPriority.toString(),
+                        );
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Save',style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green
+                      ),))
+                ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextButton(
-                  onPressed: () async {
-                    if (_desController.text.isEmpty ||
-                        _dateController.text.isEmpty) {
-                      return;
-                    }
-                    provider.editNote(widget.id,
-                        _desController.text,
-                        _dateController.text,
-                        _selectedPriority.toString(),
-                    );
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Edit'))
-            ],
+            ),
           ),
         ),
       ),

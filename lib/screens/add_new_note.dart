@@ -27,8 +27,11 @@ class _AddNewNoteState extends State<AddNewNote> {
   // dispose controller in dispose
   Future<void> insertNote() async {
     final context = this.context;
+
+    final cleanedDescription = _desController.text.trim();
+
     final id = await DBHelper.insertNoteToDb(
-      _desController.text.toString(),
+      cleanedDescription,
       _dateController.text.toString(),
       _selectedPriority.toString(),
     );
@@ -75,75 +78,94 @@ class _AddNewNoteState extends State<AddNewNote> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(),
+        backgroundColor: Colors.cyan.shade500,
+        appBar: AppBar(
+          backgroundColor: Colors.cyan.shade500,
+        ),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Center(
-                child: Text('Add Note'),
+          padding: const EdgeInsets.only(top: 100,left: 10,right: 10),
+          child: Card(
+            elevation: 10,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 15.0,
+              vertical: 10
               ),
-              TextField(
-                maxLines: null,
-                textInputAction: TextInputAction.newline,
-                controller: _desController,
-                decoration: const InputDecoration(
-                    labelText: 'Enter notes description',
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                      ),
-                    )),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              GestureDetector(
-                onTap: () => _showDatePicker(context),
-                child: AbsorbPointer // avoid user not to type into field
-                    (
-                  child: TextField(
-                    readOnly: true,
-                    controller: _dateController,
-                    decoration: const InputDecoration(
-                        labelText: 'Click to choose Date',
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                          ),
-                        )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Center(
+                    child: Text('Add Note',style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                    ),),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              DropdownButtonFormField<Priority>(
-                value: _selectedPriority, // default value
-                items: Priority.values.map((itemValue) {
-                  return DropdownMenuItem<Priority>(
-                    value: itemValue,
-                    child: Text(priorityString(itemValue)),
-                  );
-                }).toList(),
 
-                onChanged: (newValue) {
-                  _selectedPriority = newValue!;
-                },
+                  const SizedBox(height: 20,),
+
+                   Padding(
+                     padding: EdgeInsets.all(2),
+                     child: TextField(
+                       maxLines: null,
+                       textInputAction: TextInputAction.newline,
+                       controller: _desController,
+                       decoration: const InputDecoration(
+                           labelText: 'Enter notes description',
+                       ),
+                     ),
+                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () => _showDatePicker(context),
+                    child: AbsorbPointer // avoid user not to type into field
+                        (
+                      child: TextField(
+                        readOnly: true,
+                        controller: _dateController,
+                        decoration: const InputDecoration(
+                            labelText: 'Click to choose Date',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButtonFormField<Priority>(
+                    value: _selectedPriority, // default value
+                    items: Priority.values.map((itemValue) {
+                      return DropdownMenuItem<Priority>(
+                        value: itemValue,
+                        child: Text(priorityString(itemValue)),
+                      );
+                    }).toList(),
+
+                    onChanged: (newValue) {
+                      _selectedPriority = newValue!;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                      onPressed: () async {
+                        if (_desController.text.isEmpty ||
+                            _dateController.text.isEmpty) {
+                          return;
+                        }
+                        insertNote();
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Save',style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green
+                      ),))
+                ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextButton(
-                  onPressed: () async {
-                    if (_desController.text.isEmpty ||
-                        _dateController.text.isEmpty) {
-                      return;
-                    }
-                    insertNote();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Add'))
-            ],
+            ),
           ),
         ),
       ),
